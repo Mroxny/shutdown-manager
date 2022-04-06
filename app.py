@@ -3,7 +3,6 @@ import tkinter as tk
 from tkinter import *
 import os
 import subprocess
-from turtle import width
 
 window_height = 200
 window_width = 400
@@ -16,22 +15,44 @@ text_execute = "Execute"
 
 root = tk.Tk()
 
+def shutdown():
 
-def shutdown(time_units):
+    time_multiplier = 60
+    if time.get() == "seconds":
+        time_multiplier = 1
+    elif time.get() == "minutes":
+        time_multiplier = 60
+    elif time.get() == "hours":
+        time_multiplier = 3600
 
-    if time_units == "seconds" or time_units == 1:
-        time.set(1)
-    elif time_units == "minutes" or time_units == 60:
-        time.set(60)
-    elif time_units == "hours" or time_units == 3600:
-        time.set(3600)
+    action_type = "-s"
+    if action.get() == "shutdown":
+        action_type = "-s"
+    elif action.get() == "restart":
+        action_type = "-r"
+
 
     
     print("Shutdown now in ", time.get())
-    saveFile()
-    #subprocess.run(["shutdown", "-s", "-t", 1])
+    save_file()
 
-def saveFile():
+    try:
+        ans = subprocess.check_output(["shutdown", str(action_type), "-t", str(10 * time_multiplier)])
+
+    except subprocess.CalledProcessError as e:
+        print(e.output)
+        print_error(msg="Error")
+
+
+def print_error(msg):
+    errorLabel = Label(root, text= msg, font= ('Helvetica 10 bold'), fg="#ff0000")
+    errorLabel.place(relx=0.5, rely=0.65, anchor=CENTER)
+    
+
+
+
+
+def save_file():
     print("Save file")
 
 
@@ -49,29 +70,32 @@ root.resizable(False, False)
 canvas = Canvas(root)
 
 #Add a Label widget in the Canvas
-label = Label(canvas, text= text_con_1, font= ('Helvetica 17 bold'))
-label.pack(pady= 10, padx=40, side= tk.TOP, )
+mainLabel = Label(canvas, text= text_con_1, font= ('Helvetica 17 bold'))
+mainLabel.pack(pady= 10, padx=40, side= tk.TOP, )
 
 #Create option menu 1
 action = StringVar(root)
 action.set("shutdown") # default value
-w = OptionMenu(canvas, action, "shutdown", "restart",)
-w.pack(pady=20, side= tk.LEFT)
+w = OptionMenu(root, action, "shutdown", "restart",)
+w.place(relx=0.3, rely=0.5, anchor=CENTER)
+
+mainLabel = Label(root, text= "in", font= ('Helvetica 8 bold'))
+mainLabel.place(relx=0.45, rely=0.5, anchor=CENTER)
 
 #Create an Input to read values
-entry= Entry(canvas, width= 5)
+entry= Entry(root, width= 5)
 entry.focus_set()
-entry.pack(pady=20,padx=10, side= tk.LEFT)
+entry.place(relx=0.53, rely=0.5, anchor=CENTER)
 
 #Create option menu 2
 time = StringVar(root)
 time.set("minutes") # default value
-w = OptionMenu(canvas, time, "seconds", "minutes", "hours",)
-w.pack(pady=20, side= tk.RIGHT)
+w = OptionMenu(root, time, "seconds", "minutes", "hours",)
+w.place(relx=0.67, rely=0.5, anchor=CENTER)
 
 #Create a button in canvas widget
-tk.Button(canvas, text= text_execute, command= shutdown(time_units=time.get()), ).pack(pady=20)
-
+exeButton = tk.Button(root, text= text_execute, command= lambda: shutdown(), )
+exeButton.pack(pady=20, side= tk.BOTTOM)
 
 canvas.pack()
 root.mainloop()
