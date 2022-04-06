@@ -48,16 +48,18 @@ def shutdown():
 
         except:
             print_error("Please insert numbers")
-            value = NULL
+            value = -1
 
     
     
-    if value != NULL:
+    if value != -1:
         print("Shutdown now in", value, time.get())
         save_file()
 
         try:
-            # ans = subprocess.check_output(["shutdown", str(action_type), "-t", str(value * time_multiplier)])
+            
+            subprocess.check_output(["shutdown", str(action_type), "-t", str(value * time_multiplier)])
+                
             print(value)
             print_error(clear=True)
 
